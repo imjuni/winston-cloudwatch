@@ -57,14 +57,36 @@ var WinstonCloudWatch = function(options) {
 
 util.inherits(WinstonCloudWatch, winston.Transport);
 
+WinstonCloudWatch.prototype.message = function (info) {
+  try {
+    if (info == null) {
+      return info;
+    }
+
+    if (!isEmpty(info.message) || isError(info.message)) { 
+      return info
+    }
+
+    if (!isEmpty(info[Symbol.for('message')]) || isError(info[Symbol.for('message')])) {
+      return { message: info[Symbol.for('message')] };
+    }
+  } catch {
+    return info;
+  }
+}
+
 WinstonCloudWatch.prototype.log = function (info, callback) {
   debug('log (called by winston)', info);
 
-  if (!isEmpty(info.message) || isError(info.message)) { 
-    this.add(info);
+  // https://github.com/winstonjs/winston-transport/blob/f4be5c72b5c8d90b0aae1690e077089116d4bb64/modern.js#L144
+  // get message from winston formatter applied
+  var transformed = this.message(info);
+
+  if (!isEmpty(transformed.message) || isError(transformed.message)) { 
+    this.add(transformed);
   }
 
-  if (!/^uncaughtException: /.test(info.message)) {
+  if (!/^uncaughtException: /.test(transformed.message)) {
     // do not wait, just return right away
     return callback(null, true);
   }

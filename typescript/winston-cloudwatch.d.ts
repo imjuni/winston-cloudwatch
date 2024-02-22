@@ -3,6 +3,7 @@ import TransportStream = require("winston-transport");
 import { CloudWatchLogs, CloudWatchLogsClientConfig, LogStream } from "@aws-sdk/client-cloudwatch-logs";
 
 import winston = require("winston");
+import * as logform from 'logform';
 
 // Declare the default WinstonCloudwatch class
 declare class WinstonCloudwatch extends TransportStream {
@@ -54,6 +55,7 @@ declare namespace WinstonCloudwatch {
     cloudWatchLogs?: CloudWatchLogs;
     level?: string;
     ensureLogGroup?: boolean;
+    format: logform.Format;
     logGroupName?: string | (() => string);
     logStreamName?: string | (() => string);
     awsAccessKeyId?: string;

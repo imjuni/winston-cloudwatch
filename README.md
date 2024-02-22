@@ -170,6 +170,34 @@ Please refer to [the provided examples](https://github.com/lazywithclass/winston
 
 Note that when running the examples the process will not exit because of the [`setInterval`](https://github.com/lazywithclass/winston-cloudwatch/blob/master/index.js#L73)
 
+### Formats
+
+winston-cloudwatch sends only the message field from the logs. If you are not saving the messages in your logs, change the log format as shown below.
+
+```js
+import { createLogger, format } from "winston";
+import * as WinstonCloudWatch from "winston-cloudwatch";
+
+export const log = createLogger({
+  level: "debug",
+  format: format.json(),
+  transports: [
+    new WinstonCloudWatch({
+      level: "error",
+      logGroupName: "groupName",
+      logStreamName: "errors",
+      awsRegion: "eu-west-3",
+      messageFormatter: (log) => log.message.trim(),
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.printf((info) => JSON.stringify(info)),
+      ),
+    }),
+  ],
+});
+```
+
+
 ### Simulation
 
 You could simulate how winston-cloudwatch runs by using the files in 
